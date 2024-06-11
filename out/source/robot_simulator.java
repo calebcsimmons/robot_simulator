@@ -27,11 +27,11 @@ float[] Zsphere = new float[99];
 public void setup(){
     /* size commented out by preprocessor */;
     
-    base = loadShape("/Users/calebsimmons/Downloads/robot parts/data/r5.obj");
-    shoulder = loadShape("/Users/calebsimmons/Downloads/robot parts/data/r1.obj");
-    upArm = loadShape("/Users/calebsimmons/Downloads/robot parts/data/r2.obj");
-    loArm = loadShape("/Users/calebsimmons/Downloads/robot parts/data/r3.obj");
-    end = loadShape("/Users/calebsimmons/Downloads/robot parts/data/r4.obj");
+    base = loadShape("./models/r5.obj");
+    shoulder = loadShape("./models/r1.obj");
+    upArm = loadShape("./models/r2.obj");
+    loArm = loadShape("./models/r3.obj");
+    end = loadShape("./models/r4.obj");
     
     shoulder.disableStyle();
     upArm.disableStyle();
