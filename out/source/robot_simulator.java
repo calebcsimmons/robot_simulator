@@ -34,6 +34,31 @@ boolean isPlaying = true;
 public void setup() {
     /* size commented out by preprocessor */;
 
+    loadModels();
+    initializeControlP5();
+}
+
+public void draw() {
+    background(32);
+    smooth();
+    lights();
+    directionalLight(51, 102, 126, -1, 0, 0);
+
+    if (isPlaying) {
+        updateSimulation();
+    }
+
+    drawRobot();
+    drawTrajectory();
+    cp5.draw();  // Draw ControlP5 elements outside the transformed space
+}
+
+public void mouseDragged() {
+    rotY -= (mouseX - pmouseX) * 0.01f;
+    rotX -= (mouseY - pmouseY) * 0.01f;
+}
+
+public void loadModels() {
     base = loadShape("./models/r5.obj");
     shoulder = loadShape("./models/r1.obj");
     upArm = loadShape("./models/r2.obj");
@@ -43,7 +68,9 @@ public void setup() {
     shoulder.disableStyle();
     upArm.disableStyle();
     loArm.disableStyle();
+}
 
+public void initializeControlP5() {
     cp5 = new ControlP5(this);
     cp5.addButton("Play")
        .setPosition(10, 10)
@@ -63,15 +90,8 @@ public void setup() {
        });
 }
 
-public void draw() {
-    background(32);
-    smooth();
-    lights();
-    directionalLight(51, 102, 126, -1, 0, 0);
-
-    if (isPlaying) {
-        writePos();
-    }
+public void updateSimulation() {
+    writePos();
 
     for (int i = 0; i < Xsphere.length - 1; i++) {
         Xsphere[i] = Xsphere[i + 1];
@@ -82,7 +102,9 @@ public void draw() {
     Xsphere[Xsphere.length - 1] = posX;
     Ysphere[Ysphere.length - 1] = posY;
     Zsphere[Xsphere.length - 1] = posZ;
+}
 
+public void drawRobot() {
     noStroke();
 
     pushMatrix();  // Save the current matrix state
@@ -91,14 +113,6 @@ public void draw() {
     rotateX(rotX);
     rotateY(-rotY);
     scale(-4);
-
-    for (int i = 0; i < Xsphere.length; i++) {
-        pushMatrix();
-        translate(-Ysphere[i], -Zsphere[i] - 11, -Xsphere[i]);
-        fill(0xFFD003FF, 25);
-        sphere(PApplet.parseFloat(i) / 20);
-        popMatrix();
-    }
 
     fill(0xFFFFE308);
     translate(0, -40, 0);
@@ -123,43 +137,45 @@ public void draw() {
     shape(end);
 
     popMatrix();  // Restore the matrix state to prevent GUI transformations
-
-    // Draw ControlP5 elements outside the transformed space
-    cp5.draw();
 }
 
-public void mouseDragged() {
-    rotY -= (mouseX - pmouseX) * 0.01f;
-    rotX -= (mouseY - pmouseY) * 0.01f;
+public void drawTrajectory() {
+    for (int i = 0; i < Xsphere.length; i++) {
+        pushMatrix();
+        translate(-Ysphere[i], -Zsphere[i] - 11, -Xsphere[i]);
+        fill(0xFFD003FF, 25);
+        sphere(PApplet.parseFloat(i) / 20);
+        popMatrix();
+    }
 }
 float F = 50;
 float T = 70;
 float millisOld, gTime, gSpeed = 4;
 
-public void IK(){
-  float X = posX;
-  float Y = posY;
-  float Z = posZ;
+public void IK() {
+    float X = posX;
+    float Y = posY;
+    float Z = posZ;
 
-  float L = sqrt(Y*Y+X*X);
-  float dia = sqrt(Z*Z+L*L);
+    float L = sqrt(Y * Y + X * X);
+    float dia = sqrt(Z * Z + L * L);
 
-  alpha = PI/2-(atan2(L, Z)+acos((T*T-F*F-dia*dia)/(-2*F*dia)));
-  beta = -PI+acos((dia*dia-T*T-F*F)/(-2*F*T));
-  gamma = atan2(Y, X);
+    alpha = PI / 2 - (atan2(L, Z) + acos((T * T - F * F - dia * dia) / (-2 * F * dia)));
+    beta = -PI + acos((dia * dia - T * T - F * F) / (-2 * F * T));
+    gamma = atan2(Y, X);
 }
 
-public void setTime(){
-  gTime += ((float)millis()/1000 - millisOld)*(gSpeed/4);
-  if(gTime >= 4)  gTime = 0;  
-  millisOld = (float)millis()/1000;
+public void setTime() {
+    gTime += ((float) millis() / 1000 - millisOld) * (gSpeed / 4);
+    if (gTime >= 4) gTime = 0;
+    millisOld = (float) millis() / 1000;
 }
 
-public void writePos(){
-  IK();
-  setTime();
-  posX = sin(gTime*PI/2)*20;
-  posZ = sin(gTime*PI)*10;
+public void writePos() {
+    IK();
+    setTime();
+    posX = sin(gTime * PI / 2) * 20;
+    posZ = sin(gTime * PI) * 10;
 }
 
 

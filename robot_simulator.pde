@@ -15,6 +15,31 @@ boolean isPlaying = true;
 void setup() {
     size(1200, 800, OPENGL);
 
+    loadModels();
+    initializeControlP5();
+}
+
+void draw() {
+    background(32);
+    smooth();
+    lights();
+    directionalLight(51, 102, 126, -1, 0, 0);
+
+    if (isPlaying) {
+        updateSimulation();
+    }
+
+    drawRobot();
+    drawTrajectory();
+    cp5.draw();  // Draw ControlP5 elements outside the transformed space
+}
+
+void mouseDragged() {
+    rotY -= (mouseX - pmouseX) * 0.01;
+    rotX -= (mouseY - pmouseY) * 0.01;
+}
+
+void loadModels() {
     base = loadShape("./models/r5.obj");
     shoulder = loadShape("./models/r1.obj");
     upArm = loadShape("./models/r2.obj");
@@ -24,7 +49,9 @@ void setup() {
     shoulder.disableStyle();
     upArm.disableStyle();
     loArm.disableStyle();
+}
 
+void initializeControlP5() {
     cp5 = new ControlP5(this);
     cp5.addButton("Play")
        .setPosition(10, 10)
@@ -44,15 +71,8 @@ void setup() {
        });
 }
 
-void draw() {
-    background(32);
-    smooth();
-    lights();
-    directionalLight(51, 102, 126, -1, 0, 0);
-
-    if (isPlaying) {
-        writePos();
-    }
+void updateSimulation() {
+    writePos();
 
     for (int i = 0; i < Xsphere.length - 1; i++) {
         Xsphere[i] = Xsphere[i + 1];
@@ -63,7 +83,9 @@ void draw() {
     Xsphere[Xsphere.length - 1] = posX;
     Ysphere[Ysphere.length - 1] = posY;
     Zsphere[Xsphere.length - 1] = posZ;
+}
 
+void drawRobot() {
     noStroke();
 
     pushMatrix();  // Save the current matrix state
@@ -72,14 +94,6 @@ void draw() {
     rotateX(rotX);
     rotateY(-rotY);
     scale(-4);
-
-    for (int i = 0; i < Xsphere.length; i++) {
-        pushMatrix();
-        translate(-Ysphere[i], -Zsphere[i] - 11, -Xsphere[i]);
-        fill(#D003FF, 25);
-        sphere(float(i) / 20);
-        popMatrix();
-    }
 
     fill(#FFE308);
     translate(0, -40, 0);
@@ -104,12 +118,14 @@ void draw() {
     shape(end);
 
     popMatrix();  // Restore the matrix state to prevent GUI transformations
-
-    // Draw ControlP5 elements outside the transformed space
-    cp5.draw();
 }
 
-void mouseDragged() {
-    rotY -= (mouseX - pmouseX) * 0.01;
-    rotX -= (mouseY - pmouseY) * 0.01;
+void drawTrajectory() {
+    for (int i = 0; i < Xsphere.length; i++) {
+        pushMatrix();
+        translate(-Ysphere[i], -Zsphere[i] - 11, -Xsphere[i]);
+        fill(#D003FF, 25);
+        sphere(float(i) / 20);
+        popMatrix();
+    }
 }
